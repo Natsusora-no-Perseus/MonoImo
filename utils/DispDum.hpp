@@ -45,7 +45,10 @@ class DispDum
         //Add draw_circ, draw_arc in the future
 
         //Bitmap-drawing functions:
+        //This is a implementation of drawing a bitmap in the same 8-bit page format
+        //as the SSD1306 display
         void draw_bmp(uint8_t x, uint8_t y, uint8_t w, uint8_t h, const uint8_t *xbmp);
+        //This implements drawing a bitmap in XBMP format (like the one in u8glib)
         void draw_xbmp(uint8_t x, uint8_t y, uint8_t w, uint8_t h, const uint8_t *xbmp);
 
 
