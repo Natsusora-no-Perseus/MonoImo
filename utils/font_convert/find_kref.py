@@ -26,8 +26,13 @@ parser.add_argument('-r', '--rankby',
                     choices=['LMEAN', 'LMED', 'LSTDEV', 'LMAX',\
                              'RMEAN', 'RMED', 'RSTDEV', 'RMAX'],
                     metavar='SORTBY ...',
+                    nargs='+',
                     help='display results are ranked by this argument;\
                             available options: {L, R} + {MEAN, MED, STDEV, MAX}')
+
+parser.add_argument('-d', '--descending',
+                    action='store_true',
+                    help='ranks in descending order instead')
 
 
 args = parser.parse_args()
@@ -37,10 +42,15 @@ kern_lst = []
 KernStats = namedtuple('KernStats',
                        ['chr', 'lmean', 'lmed', 'lstdev', 'lmax',
                         'rmean', 'rmed', 'rstdev', 'rmax'])
+# Make it print better:
+setattr(KernStats, "__repr__", lambda self:\
+        f"chr {self.chr}: lmean={self.lmean:.2f}, lmed={self.lmed:.2f}, "\
+        f"lstdev={self.lstdev:.2f}, lmax={self.lmax:.2f}, rmean={self.rmean:.2f}, "\
+        f"rmed={self.rmed:.2f}, rstdev={self.rstdev:.2f}, rmax={self.rmax:.2f}")
 
 
 try:
-    font = ImageFont.truetype(args.font, args.size)
+    font = ImageFont.truetype(args.font, args.size[0])
 except OSError:
     sys.exit("Failed to load font. Perhaps the name is wrong?")
 
@@ -76,11 +86,7 @@ for elem in chr_lst:
                               mean(l_lst), median(l_lst), stdev(l_lst), max(l_lst),
                               mean(r_lst), median(r_lst), stdev(r_lst), max(r_lst)))
 
-"""
-print('Least mean:')
-kern_lst.sort(key=lambda x: x.lmean)
-print(kern_lst[0:10])
-"""
+
 
 sortword_lst = ['LMEAN', 'LMED', 'LSTDEV', 'LMAX', 'RMEAN', 'RMED', 'RSTDEV', 'RMAX']
 sortfunc_lst = \
@@ -90,7 +96,8 @@ sortfunc_lst = \
 printcnt = 10
 for sortword in sortword_lst:
     if sortword in args.rankby:
-        print('Sorting by ' + sortword + ':')
-        kern_lst.sort(key=sortfunc_lst[sortword_lst.index(sortword)])
+        print('======= Sorting by ' + sortword + ': =======')
+        kern_lst.sort(key=sortfunc_lst[sortword_lst.index(sortword)],\
+                reverse=args.descending)
         for elem in kern_lst[0:printcnt]:
-            print(repr(elem)[9:])
+            print(repr(elem))
